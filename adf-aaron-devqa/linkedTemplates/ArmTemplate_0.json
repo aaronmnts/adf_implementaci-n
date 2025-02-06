@@ -357,6 +357,41 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Prueba 9')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Prueba 9",
+						"description": "Agregando body",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {},
+							"url": "www.er.com",
+							"body": "{name: string}"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-05T23:00:18Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ADLSCurso')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -597,73 +632,6 @@
 					"quoteChar": "\""
 				},
 				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS_zsbdevdl01')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DS_001_ADLS_Source')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_ADLS_zsbdevdl01",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"Carpeta": {
-						"type": "string"
-					},
-					"Zona": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "OXXO/MEXICO/CATALOGOS"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": {
-							"value": "@CONCAT('MEXICO/',dataset().Zona,'/CATALOGO/', dataset().Carpeta)",
-							"type": "Expression"
-						},
-						"fileSystem": "oxxo"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "Promoción",
-						"type": "String"
-					},
-					{
-						"name": "Descripción",
-						"type": "String"
-					},
-					{
-						"name": "Texto",
-						"type": "String"
-					},
-					{
-						"name": "Día",
-						"type": "String"
-					},
-					{
-						"name": "Inicio",
-						"type": "String"
-					},
-					{
-						"name": "Fin",
-						"type": "String"
-					}
-				]
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS_zsbdevdl01')]"

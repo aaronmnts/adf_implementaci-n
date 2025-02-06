@@ -13,6 +13,267 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/csvToparquet_test')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data123",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"modifiedDatetimeStart": "2023-01-26T00:00:00Z",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "TICKET_ID",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "TICKET_ID",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CR_PLAZA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CR_PLAZA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CR_TIENDA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CR_TIENDA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "FECHA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "FECHA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "HORA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "HORA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAJA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CAJA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CNS",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CNS",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CVE_MOV",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CVE_MOV",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "UNIDADES_VENTA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "UNIDADES_VENTA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CARD_TYPE",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CARD_TYPE",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "EXPORT4",
+								"type": "DatasetReference",
+								"parameters": {
+									"File": "exportacion.csv",
+									"Folder": "carga/",
+									"Container": "pruebas"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "csv_tst_output",
+								"type": "DatasetReference",
+								"parameters": {
+									"Container": "pruebas",
+									"File": "final.parquet",
+									"Folder": "deposito/"
+								}
+							}
+						]
+					},
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data123",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflowTRANS_CSV",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {
+										"Container": "pruebas",
+										"File": "final.parquet",
+										"Folder": "deposito/"
+									},
+									"sink1": {
+										"Container": "pruebas",
+										"Folder": "deposito/",
+										"File": "prueba_superada.csv"
+									}
+								},
+								"linkedServiceParameters": {
+									"sink1": {
+										"schemaLinkedService": {
+											"Container": "pruebas",
+											"Folder": "deposito/",
+											"File": "prueba_superada.csv"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Test_DataGovernance"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:09Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PPL_ASE_Master')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
