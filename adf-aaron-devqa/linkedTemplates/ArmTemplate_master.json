@@ -1,0 +1,213 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-aaron-devqa"
+		},
+		"ADLSCurso_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ADLSCurso'"
+		},
+		"AzureBlobStorageTest_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorageTest'"
+		},
+		"LS_ADLS_zsbdevdl01_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_ADLS_zsbdevdl01'"
+		},
+		"zdbzprdl01_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'zdbzprdl01'"
+		},
+		"ADLSCurso_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://zsbdevdl01.dfs.core.windows.net/"
+		},
+		"HTTP_INEGI_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://www.inegi.org.mx/app/api/indicadores/desarrolladores/jsonxml/INDICATOR/1002000001/es/00/true/BISE/2.0/07332f37-8f45-3c59-b854-d5b04620897f?type=json"
+		},
+		"LS_ADLS_zsbdevdl01_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://zsbdevdl01.dfs.core.windows.net/"
+		},
+		"LS_Databricks_zsbdevdbk01_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "1117-055615-3xzy9lr7"
+		},
+		"LS_INEGI_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://www.inegi.org.mx/app/api/indicadores/desarrolladores/jsonxml/INDICATOR/1002000001/es/00/true/BISE/2.0/07332f37-8f45-3c59-b854-d5b04620897f ?type=json"
+		},
+		"LS_KeyVault_zsbdevkv01_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://zsbdevkv01.vault.azure.net/"
+		},
+		"zdbzprdl01_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://zdbzprdl01.dfs.core.windows.net/"
+		},
+		"default_properties_InegiToken_value": {
+			"type": "string",
+			"defaultValue": "add79752-383e-4750-bf12-b607997305e5"
+		},
+		"default_properties_NumeroTiendas_value": {
+			"type": "string",
+			"defaultValue": "100"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "adf-aaron-devqa_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"ADLSCurso_accountKey": {
+						"value": "[parameters('ADLSCurso_accountKey')]"
+					},
+					"AzureBlobStorageTest_connectionString": {
+						"value": "[parameters('AzureBlobStorageTest_connectionString')]"
+					},
+					"LS_ADLS_zsbdevdl01_accountKey": {
+						"value": "[parameters('LS_ADLS_zsbdevdl01_accountKey')]"
+					},
+					"zdbzprdl01_accountKey": {
+						"value": "[parameters('zdbzprdl01_accountKey')]"
+					},
+					"default_properties_InegiToken_value": {
+						"value": "[parameters('default_properties_InegiToken_value')]"
+					},
+					"default_properties_NumeroTiendas_value": {
+						"value": "[parameters('default_properties_NumeroTiendas_value')]"
+					},
+					"ADLSCurso_properties_typeProperties_url": {
+						"value": "[parameters('ADLSCurso_properties_typeProperties_url')]"
+					},
+					"HTTP_INEGI_properties_typeProperties_url": {
+						"value": "[parameters('HTTP_INEGI_properties_typeProperties_url')]"
+					},
+					"LS_ADLS_zsbdevdl01_properties_typeProperties_url": {
+						"value": "[parameters('LS_ADLS_zsbdevdl01_properties_typeProperties_url')]"
+					},
+					"LS_INEGI_properties_typeProperties_url": {
+						"value": "[parameters('LS_INEGI_properties_typeProperties_url')]"
+					},
+					"LS_KeyVault_zsbdevkv01_properties_typeProperties_baseUrl": {
+						"value": "[parameters('LS_KeyVault_zsbdevkv01_properties_typeProperties_baseUrl')]"
+					},
+					"zdbzprdl01_properties_typeProperties_url": {
+						"value": "[parameters('zdbzprdl01_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "adf-aaron-devqa_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-aaron-devqa_ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "adf-aaron-devqa_ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-aaron-devqa_ArmTemplate_1')]"
+			]
+		},
+		{
+			"name": "adf-aaron-devqa_ArmTemplate_3",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_3.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"LS_Databricks_zsbdevdbk01_properties_typeProperties_existingClusterId": {
+						"value": "[parameters('LS_Databricks_zsbdevdbk01_properties_typeProperties_existingClusterId')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-aaron-devqa_ArmTemplate_2')]"
+			]
+		},
+		{
+			"name": "adf-aaron-devqa_ArmTemplate_4",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_4.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-aaron-devqa_ArmTemplate_3')]"
+			]
+		}
+	]
+}

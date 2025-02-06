@@ -1,0 +1,1483 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-aaron-devqa"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_ASE_CatProductos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "CURSO DF/ASE"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_ASE_CatProductos_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "DSCatProductos"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_ASE_CatProducto_CSV_OUT",
+								"type": "DatasetReference"
+							},
+							"name": "sinkTransform"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_ASE_CountCatProducto_CSV_OUT",
+								"type": "DatasetReference"
+							},
+							"name": "sinkCount"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DerivedColumnTransform"
+						},
+						{
+							"name": "AggregateSegments"
+						}
+					],
+					"script": "source(output(\n\t\tProductID as string,\n\t\tProduct as string,\n\t\tCategory as string,\n\t\tManufacturerID as string,\n\t\tPrice as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> DSCatProductos\nDSCatProductos derive(ProductOK = left(Product,locate(\"|\",Product)-1),\n\t\tSegment = right(Product,length(Product)-locate(\"|\",Product)),\n\t\tPriceOK = toFloat(right(Price,length(Price)-4))) ~> DerivedColumnTransform\nDerivedColumnTransform aggregate(groupBy(Segment),\n\tPriceOK = count(PriceOK)) ~> AggregateSegments\nDerivedColumnTransform sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['ASE_CatProductos.CSV'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tProductID,\n\t\tProduct = ProductOK,\n\t\tSegment,\n\t\tCategory,\n\t\tManufacturerID,\n\t\tPrice = PriceOK\n\t),\n\tpartitionBy('hash', 1)) ~> sinkTransform\nAggregateSegments sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['ASE_AggCatProductos.CSV'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tSegment,\n\t\tPrice = PriceOK\n\t),\n\tpartitionBy('hash', 1)) ~> sinkCount"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_ASE_Catalogos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "CURSO DF/ASE"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_ASE_LZCatProductos_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "DSCatProductos"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_ASE_CatManufacturer",
+								"type": "DatasetReference"
+							},
+							"name": "DSCatManufacturer"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_ASE_TZCatProductos_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "SinkProductTransform"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_ASE_CatManufacturer_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "SinkManufacturerTransform"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DerivedColumnTransform"
+						},
+						{
+							"name": "Unpivot1"
+						},
+						{
+							"name": "FilterManufacturer"
+						},
+						{
+							"name": "Select1"
+						}
+					],
+					"script": "source(output(\n\t\tProductID as string,\n\t\tProduct as string,\n\t\tCategory as string,\n\t\tManufacturerID as string,\n\t\tPrice as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> DSCatProductos\nsource(output(\n\t\tManufacturerID as string,\n\t\t{1} as string,\n\t\t{2} as string,\n\t\t{3} as string,\n\t\t{4} as string,\n\t\t{5} as string,\n\t\t{6} as string,\n\t\t{7} as string,\n\t\t{8} as string,\n\t\t{9} as string,\n\t\t{10} as string,\n\t\t{11} as string,\n\t\t{12} as string,\n\t\t{13} as string,\n\t\t{14} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> DSCatManufacturer\nDSCatProductos derive(ProductOK = left(Product,locate(\"|\",Product)-1),\n\t\tSegment = right(Product,length(Product)-locate(\"|\",Product)),\n\t\tPriceOK = toFloat(right(Price,length(Price)-4))) ~> DerivedColumnTransform\nDSCatManufacturer unpivot(output(\n\t\tManufacturerIDok as string,\n\t\tManufacturer as string\n\t),\n\tungroupBy(ManufacturerID),\n\tlateral: true,\n\tignoreNullPivots: true) ~> Unpivot1\nUnpivot1 filter(ManufacturerID== \"Manufacturer\") ~> FilterManufacturer\nDerivedColumnTransform select(mapColumn(\n\t\tProductID,\n\t\tProduct = ProductOK,\n\t\tSegment,\n\t\tCategory,\n\t\tManufacturerID,\n\t\tPrice = PriceOK\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tProductID as string,\n\t\tProduct as string,\n\t\tCategory as string,\n\t\tManufacturerID as string,\n\t\tPrice as string\n\t),\n\tformat: 'parquet',\n\tpartitionFileNames:['ASE_Cat_Productos.parquet'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> SinkProductTransform\nFilterManufacturer sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:['ASE_Cat_Manufacturer.parquet'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> SinkManufacturerTransform"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_ASE_Ventas')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "CURSO DF/ASE"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_ASE_VentasLZ_IN",
+								"type": "DatasetReference"
+							},
+							"name": "LZVentas"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_ASE_VentasTZ_OUT",
+								"type": "DatasetReference"
+							},
+							"name": "SinkReporteVentas"
+						}
+					],
+					"transformations": [
+						{
+							"name": "Filter1"
+						}
+					],
+					"script": "parameters{\n\tYear as integer\n}\nsource(output(\n\t\tProductID as string,\n\t\tDate as string,\n\t\tZip as string,\n\t\tUnits as string,\n\t\tRevenue as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> LZVentas\nLZVentas filter(year(toDate(Date)) == $Year) ~> Filter1\nFilter1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat('ASE_Ventas_',toString($Year),'.CSV'))],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> SinkReporteVentas"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_ExcelToParquet')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Dataflow de prueba ",
+				"folder": {
+					"name": "Test_DataGov"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Dim_Zona_Precio_INPUT",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Parquet_OUTPUT",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "sort1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          ZONAPRECIO_KEY as string,",
+						"          ZONAPRECIO_ID as string,",
+						"          ZONAPRECIO_DESCRIPCION as string,",
+						"          GRUPO_ZONA_ID as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 sort(asc(ZONAPRECIO_ID, true),",
+						"     asc(GRUPO_ZONA_ID, true)) ~> sort1",
+						"sort1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ZONAPRECIO_KEY as string,",
+						"          ZONAPRECIO_ID as string,",
+						"          ZONAPRECIO_DESCRIPCION as string,",
+						"          GRUPO_ZONA_ID as string",
+						"     ),",
+						"     format: 'parquet',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_JAGG_Catalogos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "CURSO DF"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_JAGG_parquet_IN",
+								"type": "DatasetReference"
+							},
+							"name": "DSCatProductos"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_JAGG_TZCatProductos_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DCTransform"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          ProductID as string,",
+						"          Product as string,",
+						"          Category as string,",
+						"          ManufacturerID as string,",
+						"          Price as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> DSCatProductos",
+						"DSCatProductos derive(ProductOK = left(Product,locate(\"|\", Product)-1),",
+						"          Segment = right(Product,length(Product)-locate(\"|\", Product)),",
+						"          PriceOk = toFloat(right(Price, length(Price)-4))) ~> DCTransform",
+						"DCTransform select(mapColumn(",
+						"          ProductID,",
+						"          Product = ProductOK,",
+						"          Segment,",
+						"          Category,",
+						"          ManufacturerID,",
+						"          Price = PriceOk",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ManufacturerID as string,",
+						"          ManufacturerIDok as string,",
+						"          Manufacturer as string",
+						"     ),",
+						"     format: 'parquet',",
+						"     partitionFileNames:['JAGG_Cat_Products.parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DF_SS_Catalogos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "CURSO DF"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_SS_parquet_IN",
+								"type": "DatasetReference"
+							},
+							"name": "DSCatProductos"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_SS_TZCatProductos",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DCTransform"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          ProductID as string,",
+						"          Product as string,",
+						"          Category as string,",
+						"          ManufacturerID as string,",
+						"          Price as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> DSCatProductos",
+						"DSCatProductos derive(ProductOK = left(Product,locate(\"|\",Product)-1),",
+						"          Segment = right(Product, length(Product)-locate(\"|\",Product)),",
+						"          PriceOK = toFloat(right(Price, length(Price)-4))) ~> DCTransform",
+						"DCTransform select(mapColumn(",
+						"          ProductID,",
+						"          Product = ProductOK,",
+						"          Category,",
+						"          ManufacturerID,",
+						"          Price = PriceOK,",
+						"          Segment",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     partitionFileNames:['SS_Cat_Products_Parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "CURSO DF"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_PQG_Parquet_IN2",
+								"type": "DatasetReference"
+							},
+							"name": "DSCatProducts"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_PQG_TZCatProductos_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DCTransform"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          ProductID as string,",
+						"          Product as string,",
+						"          Category as string,",
+						"          ManufacturerID as string,",
+						"          Price as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> DSCatProducts",
+						"DSCatProducts derive(ProductOK = left(Product,locate(\"|\", Product)-1),",
+						"          Segment = right(Product,length(Product)-locate(\"|\", Product)),",
+						"          PriceOK = toFloat(right(Price, length(Price)-4))) ~> DCTransform",
+						"DCTransform select(mapColumn(",
+						"          ProductID,",
+						"          Product = ProductOK,",
+						"          Segment,",
+						"          Category,",
+						"          ManufacturerID,",
+						"          Price = PriceOK",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ManufacturerID as string,",
+						"          ManufacturerIDok as string,",
+						"          Manufacturer as string",
+						"     ),",
+						"     format: 'parquet',",
+						"     partitionFileNames:['PQG_Cat_Products_parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflowTRANS_CSV')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Test_DataGov"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "csv_tst_output",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "prueba_superada",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          TICKET_ID as string,",
+						"          CR_PLAZA as string,",
+						"          CR_TIENDA as string,",
+						"          FECHA as string,",
+						"          HORA as string,",
+						"          CAJA as string,",
+						"          CNS as string,",
+						"          CVE_MOV as string,",
+						"          UNIDADES_VENTA as string,",
+						"          CARD_TYPE as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> source1",
+						"source1 aggregate(groupBy(CARD_TYPE,",
+						"          FECHA),",
+						"     TICKET_ID = count(TICKET_ID)) ~> aggregate1",
+						"aggregate1 derive(Produccion = case(TICKET_ID <= 5 , 'Produccion baja',case(and(TICKET_ID >= 6 , TICKET_ID <= 20), 'Produccion promedio', 'Produccion alta'))) ~> derivedColumn1",
+						"derivedColumn1 select(mapColumn(",
+						"          CARD_TYPE,",
+						"          FECHA,",
+						"          TICKET_ID,",
+						"          Produccion",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     saveOrder: 1,",
+						"     mapColumn(",
+						"          CARD_TYPE,",
+						"          FECHA,",
+						"          TICKET_ID,",
+						"          Produccion",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/001_PL_OrquestadorDiario')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "EjecutarConsultaINEGI",
+						"description": "Ejecutar el pipeline para hacer la consulta al INEGI.",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "001_PL_ConsultaINEGI",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "EjecutarJoinUsuarios",
+						"description": "Ejecutar pipeline 001_PL_JoinUsuarios.",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "001_PL_JoinUsuarios",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "EjecutarMensajePromociones",
+						"description": "Ejecutar pipeline 001_PL_MensajePromociones.",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "EjecutarJoinUsuarios",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "001_PL_MensajePromociones",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "OXXO/MEXICO/ORQUESTADORES"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:09Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PPL_ASE2_TransformCatalogos')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flowCatalogos",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_ASE2_Catalogos",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"DSCatProductos": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "CURSO DF/ASE2"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:10Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PPL_ASE_Cleansed_ReporteVentas')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEachYear",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('Year')",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Data flow CleansedZone VentasXYear",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "1.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "DF_ASE_CZ_ReporteVentas",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Year": {
+													"value": "@item()",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"DSTZVentas": {},
+												"DSTZManufacturer": {},
+												"DSTZProduct": {},
+												"sinkRepxCompleto": {},
+												"sinkAggManufacturer": {},
+												"sinkAggProduct": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"Year": {
+						"type": "Array",
+						"defaultValue": [
+							"2018",
+							"2019"
+						]
+					}
+				},
+				"folder": {
+					"name": "CURSO DF/ASE"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:10Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PPL_ASE_TransformCatalogos')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flowCatalogos",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_ASE_Catalogos",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"DSCatProductos": {},
+									"DSCatManufacturer": {},
+									"SinkProductTransform": {},
+									"SinkManufacturerTransform": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "CURSO DF/ASE"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:10Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_ASE_Catalogos')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PPL_ASE_TransformVentas')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEachYear",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('Year')",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Data flow VentasXYear",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "1.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "DF_ASE_Ventas",
+											"type": "DataFlowReference",
+											"parameters": {
+												"Year": {
+													"value": "@item()",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"LZVentas": {},
+												"SinkReporteVentas": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"Year": {
+						"type": "Array",
+						"defaultValue": [
+							"2018",
+							"2019"
+						]
+					}
+				},
+				"folder": {
+					"name": "CURSO DF/ASE"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:10Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_ASE_Ventas')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PPL_JAGG_TransformCatalogos')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data Flow Catalogos",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_JAGG_Catalogos",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"DSCatProductos": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "CURSO DF/JAGG"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:10Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_JAGG_Catalogos')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PPL_PQG_TransformCatalogos')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow catalogo",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"DSCatProducts": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "CURSO DF/PQG"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:09Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PPL_SS_TransformCatalogos')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow Catalogos",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_SS_Catalogos",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"DSCatProductos": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "CURSO DF/SS"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:10Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_SS_Catalogos')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Test')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflowTRANS_CSV",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Test_DataGovernance"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:09Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflowTRANS_CSV')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/csvToparquet_test')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data123",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"modifiedDatetimeStart": "2023-01-26T00:00:00Z",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "TICKET_ID",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "TICKET_ID",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CR_PLAZA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CR_PLAZA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CR_TIENDA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CR_TIENDA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "FECHA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "FECHA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "HORA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "HORA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAJA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CAJA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CNS",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CNS",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CVE_MOV",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CVE_MOV",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "UNIDADES_VENTA",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "UNIDADES_VENTA",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CARD_TYPE",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "CARD_TYPE",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "EXPORT4",
+								"type": "DatasetReference",
+								"parameters": {
+									"File": "exportacion.csv",
+									"Folder": "carga/",
+									"Container": "pruebas"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "csv_tst_output",
+								"type": "DatasetReference",
+								"parameters": {
+									"Container": "pruebas",
+									"File": "final.parquet",
+									"Folder": "deposito/"
+								}
+							}
+						]
+					},
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Copy data123",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflowTRANS_CSV",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {
+										"Container": "pruebas",
+										"File": "final.parquet",
+										"Folder": "deposito/"
+									},
+									"sink1": {
+										"Container": "pruebas",
+										"Folder": "deposito/",
+										"File": "prueba_superada.csv"
+									}
+								},
+								"linkedServiceParameters": {
+									"sink1": {
+										"schemaLinkedService": {
+											"Container": "pruebas",
+											"Folder": "deposito/",
+											"File": "prueba_superada.csv"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Test_DataGovernance"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:09Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflowTRANS_CSV')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PPL_ASE_Master')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "PPL_ASE_IngestaVentas",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "PPL_ASE_IngestaVentas",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "PPL_ASE_TransformVentas",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "PPL_ASE_IngestaVentas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "PPL_ASE_TransformVentas",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "PPL_ASE_IngestaCatalogos",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "PPL_ASE_IngestaCatalogos",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "PPL_ASE_TransformCatalogos",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "PPL_ASE_IngestaCatalogos",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "PPL_ASE_TransformCatalogos",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "PPL_ASE_Cleansed_ReporteVentas",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "PPL_ASE_TransformCatalogos",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "PPL_ASE_TransformVentas",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "PPL_ASE_Cleansed_ReporteVentas",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "CURSO DF/ASE"
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-06T16:29:11Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/PPL_ASE_TransformVentas')]",
+				"[concat(variables('factoryId'), '/pipelines/PPL_ASE_TransformCatalogos')]",
+				"[concat(variables('factoryId'), '/pipelines/PPL_ASE_Cleansed_ReporteVentas')]"
+			]
+		}
+	]
+}

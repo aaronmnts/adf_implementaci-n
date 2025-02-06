@@ -1,0 +1,10 @@
+{
+	"InegiToken": {
+		"type": "string",
+		"value": "add79752-383e-4750-bf12-b607997305e5"
+	},
+	"NumeroTiendas": {
+		"type": "string",
+		"value": "100"
+	}
+}

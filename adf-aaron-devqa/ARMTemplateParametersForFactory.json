@@ -1,0 +1,48 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-aaron-devqa"
+		},
+		"ADLSCurso_accountKey": {
+			"value": ""
+		},
+		"AzureBlobStorageTest_connectionString": {
+			"value": ""
+		},
+		"LS_ADLS_zsbdevdl01_accountKey": {
+			"value": ""
+		},
+		"zdbzprdl01_accountKey": {
+			"value": ""
+		},
+		"ADLSCurso_properties_typeProperties_url": {
+			"value": "https://zsbdevdl01.dfs.core.windows.net/"
+		},
+		"HTTP_INEGI_properties_typeProperties_url": {
+			"value": "https://www.inegi.org.mx/app/api/indicadores/desarrolladores/jsonxml/INDICATOR/1002000001/es/00/true/BISE/2.0/07332f37-8f45-3c59-b854-d5b04620897f?type=json"
+		},
+		"LS_ADLS_zsbdevdl01_properties_typeProperties_url": {
+			"value": "https://zsbdevdl01.dfs.core.windows.net/"
+		},
+		"LS_Databricks_zsbdevdbk01_properties_typeProperties_existingClusterId": {
+			"value": "1117-055615-3xzy9lr7"
+		},
+		"LS_INEGI_properties_typeProperties_url": {
+			"value": "https://www.inegi.org.mx/app/api/indicadores/desarrolladores/jsonxml/INDICATOR/1002000001/es/00/true/BISE/2.0/07332f37-8f45-3c59-b854-d5b04620897f ?type=json"
+		},
+		"LS_KeyVault_zsbdevkv01_properties_typeProperties_baseUrl": {
+			"value": "https://zsbdevkv01.vault.azure.net/"
+		},
+		"zdbzprdl01_properties_typeProperties_url": {
+			"value": "https://zdbzprdl01.dfs.core.windows.net/"
+		},
+		"default_properties_InegiToken_value": {
+			"value": "add79752-383e-4750-bf12-b607997305e5"
+		},
+		"default_properties_NumeroTiendas_value": {
+			"value": "100"
+		}
+	}
+}
