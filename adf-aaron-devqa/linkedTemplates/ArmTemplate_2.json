@@ -13,6 +13,62 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DS_ASE_VentasTZ_IN')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLSCurso",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"File": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "CURSO DF/ASE"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File",
+							"type": "Expression"
+						},
+						"folderPath": "TransformZone/ASE",
+						"fileSystem": "cursodatafactory"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "ProductID",
+						"type": "UTF8"
+					},
+					{
+						"name": "Date",
+						"type": "UTF8"
+					},
+					{
+						"name": "Zip",
+						"type": "UTF8"
+					},
+					{
+						"name": "Units",
+						"type": "UTF8"
+					},
+					{
+						"name": "Revenue",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DS_ASE_VentasTZ_OUT')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1143,67 +1199,6 @@
 						"type": "String"
 					}
 				]
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PPQ_JAGG_LandingZone')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_ADLS_zsbdevdl01",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"File": {
-						"type": "string"
-					},
-					"Folder": {
-						"type": "string"
-					},
-					"Contenedor": {
-						"type": "string"
-					},
-					"Hoja": {
-						"type": "string"
-					},
-					"Rango": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "CURSO DF/JAGG"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": {
-						"value": "@dataset().Hoja",
-						"type": "Expression"
-					},
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().File",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().Folder",
-							"type": "Expression"
-						},
-						"fileSystem": {
-							"value": "@dataset().Contenedor",
-							"type": "Expression"
-						}
-					},
-					"range": {
-						"value": "@dataset().Rango",
-						"type": "Expression"
-					},
-					"firstRowAsHeader": true
-				},
-				"schema": []
 			},
 			"dependsOn": []
 		}

@@ -322,6 +322,41 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Prueba 8')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Prueba 8",
+						"description": "Agregando body",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {},
+							"url": "www.er.com",
+							"body": "{name: string}"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-05T23:00:18Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ADLSCurso')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -632,45 +667,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS_zsbdevdl01')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DS_001_INEGI_Source')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_INEGI",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"InegiToken": {
-						"type": "string",
-						"defaultValue": "add79752-383e-4750-bf12-b607997305e5"
-					},
-					"NumeroTiendas": {
-						"type": "string",
-						"defaultValue": "20000"
-					}
-				},
-				"folder": {
-					"name": "OXXO/MEXICO/CATALOGOS"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "HttpServerLocation",
-						"relativeUrl": {
-							"value": "@CONCAT('nombre/CADENA COMERCIAL OXXO SA DE CV/00/1/', dataset().NumeroTiendas,'/', dataset().InegiToken)",
-							"type": "Expression"
-						}
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_INEGI')]"
 			]
 		}
 	]

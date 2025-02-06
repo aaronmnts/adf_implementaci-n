@@ -17,6 +17,67 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/PPQ_JAGG_LandingZone')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_ADLS_zsbdevdl01",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"File": {
+						"type": "string"
+					},
+					"Folder": {
+						"type": "string"
+					},
+					"Contenedor": {
+						"type": "string"
+					},
+					"Hoja": {
+						"type": "string"
+					},
+					"Rango": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "CURSO DF/JAGG"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": {
+						"value": "@dataset().Hoja",
+						"type": "Expression"
+					},
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().Folder",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().Contenedor",
+							"type": "Expression"
+						}
+					},
+					"range": {
+						"value": "@dataset().Rango",
+						"type": "Expression"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PPQ_SS_LandingZone')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1930,6 +1991,7 @@
 				"lastPublishTime": "2025-02-06T16:29:08Z"
 			},
 			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/PPQ_JAGG_LandingZone')]",
 				"[concat(variables('factoryId'), '/datasets/PQ_JAGG')]"
 			]
 		},
@@ -2758,87 +2820,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2025-02-06T16:29:08Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_ASE2_Catalogos')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "CURSO DF"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "DS_ASE2_parquet_IN",
-								"type": "DatasetReference"
-							},
-							"name": "DSCatProductos"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "DS_ASE2_TZCatProductos_parquet",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "DCTransform"
-						},
-						{
-							"name": "select1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          ProductID as string,",
-						"          Product as string,",
-						"          Category as string,",
-						"          ManufacturerID as string,",
-						"          Price as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     format: 'parquet') ~> DSCatProductos",
-						"DSCatProductos derive(ProductOK = left(Product,locate(\"|\",Product)-1),",
-						"          Segment = right(Product,length(Product)-locate(\"|\",Product)),",
-						"          PriceOk = toFloat(right(Price, length(Price)-4))) ~> DCTransform",
-						"DCTransform select(mapColumn(",
-						"          ProductID,",
-						"          Product = ProductOK,",
-						"          Segment,",
-						"          Category,",
-						"          ManufacturerID,",
-						"          Price = PriceOk",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          ManufacturerID as string,",
-						"          ManufacturerIDok as string,",
-						"          Manufacturer as string",
-						"     ),",
-						"     format: 'parquet',",
-						"     partitionFileNames:['ASE2_Cat_Products.parquet'],",
-						"     umask: 0022,",
-						"     preCommands: [],",
-						"     postCommands: [],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
 			},
 			"dependsOn": []
 		}

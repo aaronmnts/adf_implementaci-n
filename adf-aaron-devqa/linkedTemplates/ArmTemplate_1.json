@@ -13,6 +13,43 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DS_001_INEGI_Source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_INEGI",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"InegiToken": {
+						"type": "string",
+						"defaultValue": "add79752-383e-4750-bf12-b607997305e5"
+					},
+					"NumeroTiendas": {
+						"type": "string",
+						"defaultValue": "20000"
+					}
+				},
+				"folder": {
+					"name": "OXXO/MEXICO/CATALOGOS"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation",
+						"relativeUrl": {
+							"value": "@CONCAT('nombre/CADENA COMERCIAL OXXO SA DE CV/00/1/', dataset().NumeroTiendas,'/', dataset().InegiToken)",
+							"type": "Expression"
+						}
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DS_ASE2_Excel_IN')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -819,62 +856,6 @@
 					"quoteChar": "\""
 				},
 				"schema": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DS_ASE_VentasTZ_IN')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLSCurso",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"File": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "CURSO DF/ASE"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().File",
-							"type": "Expression"
-						},
-						"folderPath": "TransformZone/ASE",
-						"fileSystem": "cursodatafactory"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": [
-					{
-						"name": "ProductID",
-						"type": "UTF8"
-					},
-					{
-						"name": "Date",
-						"type": "UTF8"
-					},
-					{
-						"name": "Zip",
-						"type": "UTF8"
-					},
-					{
-						"name": "Units",
-						"type": "UTF8"
-					},
-					{
-						"name": "Revenue",
-						"type": "UTF8"
-					}
-				]
 			},
 			"dependsOn": []
 		}

@@ -13,6 +13,87 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/DF_ASE2_Catalogos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "CURSO DF"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_ASE2_parquet_IN",
+								"type": "DatasetReference"
+							},
+							"name": "DSCatProductos"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_ASE2_TZCatProductos_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DCTransform"
+						},
+						{
+							"name": "select1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          ProductID as string,",
+						"          Product as string,",
+						"          Category as string,",
+						"          ManufacturerID as string,",
+						"          Price as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> DSCatProductos",
+						"DSCatProductos derive(ProductOK = left(Product,locate(\"|\",Product)-1),",
+						"          Segment = right(Product,length(Product)-locate(\"|\",Product)),",
+						"          PriceOk = toFloat(right(Price, length(Price)-4))) ~> DCTransform",
+						"DCTransform select(mapColumn(",
+						"          ProductID,",
+						"          Product = ProductOK,",
+						"          Segment,",
+						"          Category,",
+						"          ManufacturerID,",
+						"          Price = PriceOk",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          ManufacturerID as string,",
+						"          ManufacturerIDok as string,",
+						"          Manufacturer as string",
+						"     ),",
+						"     format: 'parquet',",
+						"     partitionFileNames:['ASE2_Cat_Products.parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DF_ASE_CZ_ReporteVentas')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -758,7 +839,9 @@
 				"annotations": [],
 				"lastPublishTime": "2025-02-06T16:29:10Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DF_ASE2_Catalogos')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/PPL_ASE_Cleansed_ReporteVentas')]",
@@ -1435,140 +1518,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/dataflowTRANS_CSV')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PPL_ASE_Master')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "PPL_ASE_IngestaVentas",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "PPL_ASE_IngestaVentas",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "PPL_ASE_TransformVentas",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "PPL_ASE_IngestaVentas",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "PPL_ASE_TransformVentas",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "PPL_ASE_IngestaCatalogos",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "PPL_ASE_IngestaCatalogos",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "PPL_ASE_TransformCatalogos",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "PPL_ASE_IngestaCatalogos",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "PPL_ASE_TransformCatalogos",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "PPL_ASE_Cleansed_ReporteVentas",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "PPL_ASE_TransformCatalogos",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							},
-							{
-								"activity": "PPL_ASE_TransformVentas",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "PPL_ASE_Cleansed_ReporteVentas",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"folder": {
-					"name": "CURSO DF/ASE"
-				},
-				"annotations": [],
-				"lastPublishTime": "2025-02-06T16:29:11Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/PPL_ASE_TransformVentas')]",
-				"[concat(variables('factoryId'), '/pipelines/PPL_ASE_TransformCatalogos')]",
-				"[concat(variables('factoryId'), '/pipelines/PPL_ASE_Cleansed_ReporteVentas')]"
 			]
 		}
 	]
