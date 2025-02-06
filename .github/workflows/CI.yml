@@ -18,5 +18,5 @@ jobs:
       with:
         resourceGroupName: rg-aaron-prd
         template: ./adf-aaron-devqa/ARMTemplateForFactory.json
-        parameters: ./adf-aaron-devqa/ARMTemplateParametersForFactory.json "Data Factory name"= adf-aaron-dev
+        parameters: ./adf-aaron-devqa/ARMTemplateParametersForFactory.json factoryName= adf-aaron-dev
         #additionalArguments: "--what-if --rollback-on-error --what-if-exclude-change-types Create Ignore"
