@@ -287,6 +287,41 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Prueba 7')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Prueba 7",
+						"description": "Agregando body",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {},
+							"url": "www.er.com",
+							"body": "{name: string}"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-02-05T23:00:18Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ADLSCurso')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -636,85 +671,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_INEGI')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DS_ASE2_Excel_IN')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLSCurso",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"File": {
-						"type": "string"
-					},
-					"Folder": {
-						"type": "string"
-					},
-					"Contenedor": {
-						"type": "string"
-					},
-					"Hoja": {
-						"type": "string"
-					},
-					"Rango": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "CURSO DF/ASE"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": {
-						"value": "@dataset().Hoja",
-						"type": "Expression"
-					},
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().File",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().Folder",
-							"type": "Expression"
-						},
-						"fileSystem": {
-							"value": "@dataset().Contenedor",
-							"type": "Expression"
-						}
-					},
-					"range": {
-						"value": "@dataset().Rango",
-						"type": "Expression"
-					},
-					"firstRowAsHeader": true
-				},
-				"schema": [
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					},
-					{
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLSCurso')]"
 			]
 		}
 	]

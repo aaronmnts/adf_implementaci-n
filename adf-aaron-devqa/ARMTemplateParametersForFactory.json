@@ -3,7 +3,7 @@
 	"contentVersion": "1.0.0.0",
 	"parameters": {
 		"factoryName": {
-			"value": "adf-aaron-dev"
+			"value": "adf-aaron-devqa"
 		},
 		"ADLSCurso_accountKey": {
 			"value": ""

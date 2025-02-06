@@ -17,6 +17,78 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/PPQ_SS_LandingZone')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLSCurso",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Contenedor": {
+						"type": "string"
+					},
+					"Folder": {
+						"type": "string"
+					},
+					"File": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "CURSO DF/SS"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().File",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().Folder",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().Contenedor",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Zip",
+						"type": "UTF8"
+					},
+					{
+						"name": "City",
+						"type": "UTF8"
+					},
+					{
+						"name": "State",
+						"type": "UTF8"
+					},
+					{
+						"name": "Region",
+						"type": "UTF8"
+					},
+					{
+						"name": "District",
+						"type": "UTF8"
+					},
+					{
+						"name": "Country",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PQ_JAGG')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2375,7 +2447,9 @@
 				"annotations": [],
 				"lastPublishTime": "2025-02-06T16:29:09Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/PPQ_SS_LandingZone')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/PPL_XM_IngestaCatalogo')]",
@@ -2764,96 +2838,6 @@
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sink1"
 					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DF_ASE_CZ_ReporteVentas')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "CURSO DF/ASE"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "DS_ASE_VentasTZ_CSV_IN",
-								"type": "DatasetReference"
-							},
-							"name": "DSTZVentas"
-						},
-						{
-							"dataset": {
-								"referenceName": "DS_ASE_TZCatManufacturer_Parquet_IN",
-								"type": "DatasetReference"
-							},
-							"name": "DSTZManufacturer"
-						},
-						{
-							"dataset": {
-								"referenceName": "DS_ASE_TZCatProductos_parquet_IN",
-								"type": "DatasetReference"
-							},
-							"name": "DSTZProduct"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "DS_ASE_CZ_ReporteVentas",
-								"type": "DatasetReference"
-							},
-							"name": "sinkRepxCompleto"
-						},
-						{
-							"dataset": {
-								"referenceName": "DS_ASE_CZ_ReporteVentas",
-								"type": "DatasetReference"
-							},
-							"name": "sinkAggManufacturer"
-						},
-						{
-							"dataset": {
-								"referenceName": "DS_ASE_CZ_ReporteVentas",
-								"type": "DatasetReference"
-							},
-							"name": "sinkAggProduct"
-						}
-					],
-					"transformations": [
-						{
-							"name": "LeftJoinVentasManufacturer"
-						},
-						{
-							"name": "JoinProductManufacturer"
-						},
-						{
-							"name": "SelectProduct"
-						},
-						{
-							"name": "DerivedColumn1"
-						},
-						{
-							"name": "Select1"
-						},
-						{
-							"name": "AggProduct"
-						},
-						{
-							"name": "AggManufacturer"
-						},
-						{
-							"name": "Sort1"
-						},
-						{
-							"name": "Sort2"
-						}
-					],
-					"script": "parameters{\n\tYear as integer\n}\nsource(output(\n\t\tProductID as string,\n\t\tDate as date,\n\t\tZip as integer,\n\t\tUnits as short,\n\t\tRevenue as double\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DSTZVentas\nsource(output(\n\t\tManufacturerID as string,\n\t\tManufacturerIDok as string,\n\t\tManufacturer as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> DSTZManufacturer\nsource(output(\n\t\tProductID as string,\n\t\tProduct as string,\n\t\tSegment as string,\n\t\tCategory as string,\n\t\tManufacturerID as string,\n\t\tPrice as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> DSTZProduct\nDSTZVentas, JoinProductManufacturer join(DSTZVentas@ProductID == DerivedColumn1@ProductID,\n\tjoinType:'left',\n\tmatchType:'exact',\n\tignoreSpaces: false,\n\tbroadcast: 'auto')~> LeftJoinVentasManufacturer\nDerivedColumn1, DSTZManufacturer join(DerivedColumn1@ManufacturerID == ManufacturerIDok,\n\tjoinType:'left',\n\tmatchType:'exact',\n\tignoreSpaces: false,\n\tbroadcast: 'auto')~> JoinProductManufacturer\nJoinProductManufacturer select(mapColumn(\n\t\tProductID,\n\t\tProduct,\n\t\tSegment,\n\t\tCategory,\n\t\tManufacturerID = DerivedColumn1@ManufacturerID,\n\t\tPrice,\n\t\tManufacturerID = DSTZManufacturer@ManufacturerID,\n\t\tManufacturerIDok,\n\t\tManufacturer\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectProduct\nDSTZProduct derive(ProductID = ProductID,\n\t\tProduct = Product,\n\t\tSegment = Segment,\n\t\tCategory = Category,\n\t\tManufacturerID = ManufacturerID,\n\t\tPrice = toDecimal(Price)) ~> DerivedColumn1\nLeftJoinVentasManufacturer select(mapColumn(\n\t\tProductID = DSTZVentas@ProductID,\n\t\tDate,\n\t\tZip,\n\t\tUnits,\n\t\tRevenue,\n\t\tProductID = DerivedColumn1@ProductID,\n\t\tProduct,\n\t\tSegment,\n\t\tCategory,\n\t\tManufacturerID = DerivedColumn1@ManufacturerID,\n\t\tPrice,\n\t\tManufacturerID = DSTZManufacturer@ManufacturerID,\n\t\tManufacturerIDok,\n\t\tManufacturer\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 aggregate(groupBy(Category,\n\t\tSegment,\n\t\tProductID,\n\t\tProduct),\n\tRevenue = sum(Revenue)) ~> AggProduct\nSelect1 aggregate(groupBy(Manufacturer,\n\t\tYear = toString(year(Date)),\n\t\tMonth = toString(month(Date))),\n\tRevenue = sum(Revenue)) ~> AggManufacturer\nAggManufacturer sort(asc(Manufacturer, true),\n\tasc(Year, true),\n\tasc(Month, true)) ~> Sort1\nAggProduct sort(desc(Revenue, true)) ~> Sort2\nSelect1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat('ASE_ReporteVentas_',toString($Year),'.CSV'))],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tProductID,\n\t\tDate,\n\t\tZip,\n\t\tUnits,\n\t\tRevenue,\n\t\tProduct,\n\t\tSegment,\n\t\tCategory,\n\t\tManufacturerID,\n\t\tPrice,\n\t\tManufacturerIDok,\n\t\tManufacturer\n\t),\n\tpartitionBy('hash', 1)) ~> sinkRepxCompleto\nSort1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat('ASE_RepVentasAggManuf_',toString($Year),'.CSV'))],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sinkAggManufacturer\nSort2 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat('ASE_RepVentasAggProd_',toString($Year),'.CSV'))],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sinkAggProduct"
 				}
 			},
 			"dependsOn": []
