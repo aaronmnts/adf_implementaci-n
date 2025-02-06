@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - adf_publish
+      
 name: AzureARMSample
 
 jobs:
@@ -16,6 +17,6 @@ jobs:
     - uses: azure/arm-deploy@v2
       with:
         resourceGroupName: rg-aaron-prd
-        template: ./ARMTemplateForFactory.json
-        parameters: ./ARMTemplateParametersForFactory.json
-        additionalArguments: "--what-if --rollback-on-error --what-if-exclude-change-types Create Ignore"
+        template: ./adf-aaron-devqa/ARMTemplateForFactory.json
+        parameters: ./adf-aaron-devqa/ARMTemplateParametersForFactory.json
+        #additionalArguments: "--what-if --rollback-on-error --what-if-exclude-change-types Create Ignore"
