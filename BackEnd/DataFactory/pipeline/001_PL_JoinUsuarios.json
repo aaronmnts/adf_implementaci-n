@@ -1,0 +1,195 @@
+{
+	"name": "001_PL_JoinUsuarios",
+	"properties": {
+		"activities": [
+			{
+				"name": "ObtenerListaArchivos",
+				"description": "Obtener lista de archivos dentro del folder de Usuarios.",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_001_ADLS_Source",
+						"type": "DatasetReference",
+						"parameters": {
+							"Carpeta": "USUARIOS",
+							"Zona": "BRONCE"
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "EjecutarJoinUsuarios",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ObtenerListaArchivos",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "EliminarArchivosAnteriores",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Shared/OXXO/MEXICO/EXTRACCION/001_Demo/001_NB_JoinUsuarios",
+					"baseParameters": {
+						"ListaArchivos": {
+							"value": "@string(activity('ObtenerListaArchivos').output.childitems)",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_Databricks_zsbdevdbk01",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "EnviarHaciaArchive",
+				"description": "Enviar los archivos de la carpeta USUARIOS en zona plata a archive para llevar un historial.",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": "*",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_001_ADLS_Source",
+						"type": "DatasetReference",
+						"parameters": {
+							"Carpeta": "USUARIOS",
+							"Zona": "PLATA"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_001_ADLS_Sink_JSON",
+						"type": "DatasetReference",
+						"parameters": {
+							"Carpeta": {
+								"value": "@CONCAT('USUARIOS/ARCHIVE/', convertFromUtc(utcnow(), 'Central Standard Time', 'yyyyMMdd'))",
+								"type": "Expression"
+							},
+							"Zona": "PLATA",
+							"Archivo": "{*}"
+						}
+					}
+				]
+			},
+			{
+				"name": "EliminarArchivosAnteriores",
+				"description": "Eliminar los archivos de la carpeta USUARIOS que se acaban de pasar a ARCHIVE",
+				"type": "Delete",
+				"dependsOn": [
+					{
+						"activity": "EnviarHaciaArchive",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_001_ADLS_Sink_NoDelimiter",
+						"type": "DatasetReference",
+						"parameters": {
+							"Carpeta": "USUARIOS",
+							"Zona": "PLATA",
+							"Archivo": "_{*}"
+						}
+					},
+					"logStorageSettings": {
+						"linkedServiceName": {
+							"referenceName": "LS_ADLS_zsbdevdl01",
+							"type": "LinkedServiceReference"
+						},
+						"path": "oxxo/MEXICO/PLATA/CATALOGO/LOGS"
+					},
+					"enableLogging": true,
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": false,
+						"wildcardFileName": "{*}",
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "OXXO/MEXICO/CATALOGOS/USUARIOS"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-02-06T16:29:08Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,106 @@
+{
+	"name": "Data_INEGI_Input",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "HTTP_INEGI",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Folder": {
+				"type": "string",
+				"defaultValue": "pruebas"
+			}
+		},
+		"folder": {
+			"name": "Test_DataGov"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"Header": {
+					"type": "object",
+					"properties": {
+						"Name": {
+							"type": "string"
+						},
+						"Email": {
+							"type": "string"
+						}
+					}
+				},
+				"Series": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"INDICADOR": {
+								"type": "string"
+							},
+							"FREQ": {
+								"type": "string"
+							},
+							"TOPIC": {
+								"type": "string"
+							},
+							"UNIT": {
+								"type": "string"
+							},
+							"UNIT_MULT": {
+								"type": "string"
+							},
+							"NOTE": {
+								"type": "string"
+							},
+							"SOURCE": {
+								"type": "string"
+							},
+							"LASTUPDATE": {
+								"type": "string"
+							},
+							"STATUS": {
+								"type": "string"
+							},
+							"OBSERVATIONS": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"TIME_PERIOD": {
+											"type": "string"
+										},
+										"OBS_VALUE": {
+											"type": "string"
+										},
+										"OBS_EXCEPTION": {
+											"type": "null"
+										},
+										"OBS_STATUS": {
+											"type": "string"
+										},
+										"OBS_SOURCE": {
+											"type": "string"
+										},
+										"OBS_NOTE": {
+											"type": "string"
+										},
+										"COBER_GEO": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

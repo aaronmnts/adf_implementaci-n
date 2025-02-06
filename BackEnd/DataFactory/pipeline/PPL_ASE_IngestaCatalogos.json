@@ -1,0 +1,352 @@
+{
+	"name": "PPL_ASE_IngestaCatalogos",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy Cat Products",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ProductID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "ProductID",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "Product",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Product",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "Category",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Category",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "ManufacturerID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "ManufacturerID",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "Price",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Price",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_ASE_Excel_IN",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": "bi_dimensions.xlsx",
+							"Folder": "Origen/Data/USSales",
+							"Hoja": "product",
+							"Rango": "A2:E2500"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ASE_Parquet_OUT",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": "ASE_Cat_Productos.parquet",
+							"Folder": "LandingZone/ASE"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy Cat Geo",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy Cat Products",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Zip",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Zip",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "City",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "City",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "State",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "State",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "Region",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Region",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "District",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "District",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "Country",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Country",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_ASE_Excel_IN",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": "bi_dimensions.xlsx",
+							"Folder": "Origen/Data/USSales",
+							"Hoja": "geo",
+							"Rango": "A4:F200000"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ASE_Parquet_OUT",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": "ASE_Cat_Geografia.parquet",
+							"Folder": "LandingZone/ASE"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy Cat Manufacturer",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy Cat Geo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_ASE_Excel_IN",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": "bi_dimensions.xlsx",
+							"Folder": "Origen/Data/USSales",
+							"Hoja": "manufacturer",
+							"Rango": "A2:O4"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ASE_Parquet_OUT",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": "ASE_Cat_Manufacturer.parquet",
+							"Folder": "LandingZone/ASE"
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "CURSO DF/ASE"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-02-06T16:29:08Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

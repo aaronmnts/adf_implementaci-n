@@ -1,0 +1,58 @@
+{
+	"name": "DF_ASE_Catalogos",
+	"properties": {
+		"folder": {
+			"name": "CURSO DF/ASE"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_ASE_LZCatProductos_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "DSCatProductos"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_ASE_CatManufacturer",
+						"type": "DatasetReference"
+					},
+					"name": "DSCatManufacturer"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_ASE_TZCatProductos_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "SinkProductTransform"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_ASE_CatManufacturer_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "SinkManufacturerTransform"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumnTransform"
+				},
+				{
+					"name": "Unpivot1"
+				},
+				{
+					"name": "FilterManufacturer"
+				},
+				{
+					"name": "Select1"
+				}
+			],
+			"script": "source(output(\n\t\tProductID as string,\n\t\tProduct as string,\n\t\tCategory as string,\n\t\tManufacturerID as string,\n\t\tPrice as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> DSCatProductos\nsource(output(\n\t\tManufacturerID as string,\n\t\t{1} as string,\n\t\t{2} as string,\n\t\t{3} as string,\n\t\t{4} as string,\n\t\t{5} as string,\n\t\t{6} as string,\n\t\t{7} as string,\n\t\t{8} as string,\n\t\t{9} as string,\n\t\t{10} as string,\n\t\t{11} as string,\n\t\t{12} as string,\n\t\t{13} as string,\n\t\t{14} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> DSCatManufacturer\nDSCatProductos derive(ProductOK = left(Product,locate(\"|\",Product)-1),\n\t\tSegment = right(Product,length(Product)-locate(\"|\",Product)),\n\t\tPriceOK = toFloat(right(Price,length(Price)-4))) ~> DerivedColumnTransform\nDSCatManufacturer unpivot(output(\n\t\tManufacturerIDok as string,\n\t\tManufacturer as string\n\t),\n\tungroupBy(ManufacturerID),\n\tlateral: true,\n\tignoreNullPivots: true) ~> Unpivot1\nUnpivot1 filter(ManufacturerID== \"Manufacturer\") ~> FilterManufacturer\nDerivedColumnTransform select(mapColumn(\n\t\tProductID,\n\t\tProduct = ProductOK,\n\t\tSegment,\n\t\tCategory,\n\t\tManufacturerID,\n\t\tPrice = PriceOK\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tProductID as string,\n\t\tProduct as string,\n\t\tCategory as string,\n\t\tManufacturerID as string,\n\t\tPrice as string\n\t),\n\tformat: 'parquet',\n\tpartitionFileNames:['ASE_Cat_Productos.parquet'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> SinkProductTransform\nFilterManufacturer sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:['ASE_Cat_Manufacturer.parquet'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> SinkManufacturerTransform"
+		}
+	}
+}

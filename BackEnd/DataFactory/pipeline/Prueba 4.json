@@ -1,0 +1,29 @@
+{
+	"name": "Prueba 4",
+	"properties": {
+		"activities": [
+			{
+				"name": "Prueba 4",
+				"description": "Agregando body",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": "www.er.com",
+					"body": "{name: string}"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2025-02-05T23:00:18Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

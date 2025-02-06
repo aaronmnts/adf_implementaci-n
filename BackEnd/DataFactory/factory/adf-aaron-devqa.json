@@ -1,0 +1,21 @@
+{
+	"name": "adf-aaron-devqa",
+	"properties": {
+		"globalParameters": {
+			"InegiToken": {
+				"type": "string",
+				"value": "add79752-383e-4750-bf12-b607997305e5"
+			},
+			"NumeroTiendas": {
+				"type": "string",
+				"value": "100"
+			}
+		}
+	},
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "ca122874-4861-4ce1-a20c-a968ca472c1a",
+		"tenantId": "fcd5466d-a65d-4a96-9c25-bfcf4a7fabec"
+	}
+}

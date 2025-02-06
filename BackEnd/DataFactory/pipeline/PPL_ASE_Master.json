@@ -1,0 +1,120 @@
+{
+	"name": "PPL_ASE_Master",
+	"properties": {
+		"activities": [
+			{
+				"name": "PPL_ASE_IngestaVentas",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PPL_ASE_IngestaVentas",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "PPL_ASE_TransformVentas",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "PPL_ASE_IngestaVentas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PPL_ASE_TransformVentas",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "PPL_ASE_IngestaCatalogos",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PPL_ASE_IngestaCatalogos",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "PPL_ASE_TransformCatalogos",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "PPL_ASE_IngestaCatalogos",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PPL_ASE_TransformCatalogos",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "PPL_ASE_Cleansed_ReporteVentas",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "PPL_ASE_TransformCatalogos",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "PPL_ASE_TransformVentas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PPL_ASE_Cleansed_ReporteVentas",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "CURSO DF/ASE"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-02-06T16:29:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

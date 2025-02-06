@@ -1,0 +1,71 @@
+{
+	"name": "001_PL_OrquestadorDiario",
+	"properties": {
+		"activities": [
+			{
+				"name": "EjecutarConsultaINEGI",
+				"description": "Ejecutar el pipeline para hacer la consulta al INEGI.",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "001_PL_ConsultaINEGI",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "EjecutarJoinUsuarios",
+				"description": "Ejecutar pipeline 001_PL_JoinUsuarios.",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "001_PL_JoinUsuarios",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "EjecutarMensajePromociones",
+				"description": "Ejecutar pipeline 001_PL_MensajePromociones.",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "EjecutarJoinUsuarios",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "001_PL_MensajePromociones",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "OXXO/MEXICO/ORQUESTADORES"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-02-06T16:29:09Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

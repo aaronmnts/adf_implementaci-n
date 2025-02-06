@@ -1,0 +1,284 @@
+{
+	"name": "PPL_PQG_IngestaCatalogos",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy Cat Products",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ProductID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "ProductID",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "Product",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Product",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "Category",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Category",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "ManufacturerID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "ManufacturerID",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "Price",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Price",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_PQG_Excel_IN",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": "bi_dimensions.xlsx",
+							"Folder": "Origen/Data/USSales",
+							"Contenedor": "cursodatafactory",
+							"Hoja": "product",
+							"Rango": "A2:E5000"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_PQG_Parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"Contenedor": "cursodatafactory",
+							"Folder": "LandingZone/ASE2",
+							"File": "ASE2_Cat_Productos.parquet"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy Cat Geo",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy Cat Products",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_PQG_Excel_IN",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": "bi_dimensions.xlsx",
+							"Folder": "Origen/Data/USSales",
+							"Contenedor": "cursodatafactory",
+							"Hoja": "geo",
+							"Rango": "A4:F200000"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_PQG_Parquet_OUT",
+						"type": "DatasetReference",
+						"parameters": {
+							"Contenedor": "cursodatafactory",
+							"Folder": "LandingZone/ASE2",
+							"File": "ASE2_Cat_Productos.parquet"
+						}
+					}
+				]
+			},
+			{
+				"name": "Copy Cat Manufacturer",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Copy Cat Geo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_PQG_Excel_IN",
+						"type": "DatasetReference",
+						"parameters": {
+							"File": "bi_dimensions.xlsx",
+							"Folder": "Origen/Data/USSales",
+							"Contenedor": "cursodatafactory",
+							"Hoja": "manufacturer",
+							"Rango": "A2:O4"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_PQG_Parquet_OUT",
+						"type": "DatasetReference",
+						"parameters": {
+							"Contenedor": "cursodatafactory",
+							"Folder": "LandingZone/ASE2",
+							"File": "ASE2_Cat_Manufacturer.parquet"
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "CURSO DF/PQG"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-02-06T16:29:09Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

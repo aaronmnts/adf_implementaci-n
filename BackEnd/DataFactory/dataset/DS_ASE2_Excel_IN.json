@@ -1,0 +1,75 @@
+{
+	"name": "DS_ASE2_Excel_IN",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLSCurso",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"File": {
+				"type": "string"
+			},
+			"Folder": {
+				"type": "string"
+			},
+			"Contenedor": {
+				"type": "string"
+			},
+			"Hoja": {
+				"type": "string"
+			},
+			"Rango": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "CURSO DF/ASE"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": {
+				"value": "@dataset().Hoja",
+				"type": "Expression"
+			},
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().File",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().Folder",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().Contenedor",
+					"type": "Expression"
+				}
+			},
+			"range": {
+				"value": "@dataset().Rango",
+				"type": "Expression"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

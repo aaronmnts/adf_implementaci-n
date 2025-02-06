@@ -1,0 +1,35 @@
+{
+	"name": "DF_ASE_Ventas",
+	"properties": {
+		"folder": {
+			"name": "CURSO DF/ASE"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_ASE_VentasLZ_IN",
+						"type": "DatasetReference"
+					},
+					"name": "LZVentas"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_ASE_VentasTZ_OUT",
+						"type": "DatasetReference"
+					},
+					"name": "SinkReporteVentas"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Filter1"
+				}
+			],
+			"script": "parameters{\n\tYear as integer\n}\nsource(output(\n\t\tProductID as string,\n\t\tDate as string,\n\t\tZip as string,\n\t\tUnits as string,\n\t\tRevenue as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> LZVentas\nLZVentas filter(year(toDate(Date)) == $Year) ~> Filter1\nFilter1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat('ASE_Ventas_',toString($Year),'.CSV'))],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> SinkReporteVentas"
+		}
+	}
+}

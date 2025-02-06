@@ -1,0 +1,43 @@
+{
+	"name": "Dim_Zona_Precio_INPUT",
+	"properties": {
+		"description": "Prueba DataGob",
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorageTest",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Test_DataGov"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "DATOS",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "DIM_ZONAPRECIO.xlsx",
+				"container": "pruebas"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "ZONAPRECIO_KEY",
+				"type": "String"
+			},
+			{
+				"name": "ZONAPRECIO_ID",
+				"type": "String"
+			},
+			{
+				"name": "ZONAPRECIO_DESCRIPCION",
+				"type": "String"
+			},
+			{
+				"name": "GRUPO_ZONA_ID",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

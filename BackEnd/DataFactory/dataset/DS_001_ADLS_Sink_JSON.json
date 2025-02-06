@@ -1,0 +1,41 @@
+{
+	"name": "DS_001_ADLS_Sink_JSON",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_zsbdevdl01",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Carpeta": {
+				"type": "string"
+			},
+			"Zona": {
+				"type": "string"
+			},
+			"Archivo": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "OXXO/MEXICO/CATALOGOS"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().Archivo",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@CONCAT('MEXICO/',dataset().Zona,'/CATALOGO/', dataset().Carpeta)",
+					"type": "Expression"
+				},
+				"fileSystem": "oxxo"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

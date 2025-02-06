@@ -1,0 +1,54 @@
+{
+	"name": "DS_ASE_VentasTZ_IN",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLSCurso",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"File": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "CURSO DF/ASE"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().File",
+					"type": "Expression"
+				},
+				"folderPath": "TransformZone/ASE",
+				"fileSystem": "cursodatafactory"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "ProductID",
+				"type": "UTF8"
+			},
+			{
+				"name": "Date",
+				"type": "UTF8"
+			},
+			{
+				"name": "Zip",
+				"type": "UTF8"
+			},
+			{
+				"name": "Units",
+				"type": "UTF8"
+			},
+			{
+				"name": "Revenue",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

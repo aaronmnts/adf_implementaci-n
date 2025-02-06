@@ -1,0 +1,45 @@
+{
+	"name": "DF_ASE_CatProductos",
+	"properties": {
+		"folder": {
+			"name": "CURSO DF/ASE"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_ASE_CatProductos_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "DSCatProductos"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_ASE_CatProducto_CSV_OUT",
+						"type": "DatasetReference"
+					},
+					"name": "sinkTransform"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_ASE_CountCatProducto_CSV_OUT",
+						"type": "DatasetReference"
+					},
+					"name": "sinkCount"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DerivedColumnTransform"
+				},
+				{
+					"name": "AggregateSegments"
+				}
+			],
+			"script": "source(output(\n\t\tProductID as string,\n\t\tProduct as string,\n\t\tCategory as string,\n\t\tManufacturerID as string,\n\t\tPrice as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> DSCatProductos\nDSCatProductos derive(ProductOK = left(Product,locate(\"|\",Product)-1),\n\t\tSegment = right(Product,length(Product)-locate(\"|\",Product)),\n\t\tPriceOK = toFloat(right(Price,length(Price)-4))) ~> DerivedColumnTransform\nDerivedColumnTransform aggregate(groupBy(Segment),\n\tPriceOK = count(PriceOK)) ~> AggregateSegments\nDerivedColumnTransform sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['ASE_CatProductos.CSV'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tProductID,\n\t\tProduct = ProductOK,\n\t\tSegment,\n\t\tCategory,\n\t\tManufacturerID,\n\t\tPrice = PriceOK\n\t),\n\tpartitionBy('hash', 1)) ~> sinkTransform\nAggregateSegments sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['ASE_AggCatProductos.CSV'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tmapColumn(\n\t\tSegment,\n\t\tPrice = PriceOK\n\t),\n\tpartitionBy('hash', 1)) ~> sinkCount"
+		}
+	}
+}

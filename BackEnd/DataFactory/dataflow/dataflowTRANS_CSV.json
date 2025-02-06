@@ -1,0 +1,81 @@
+{
+	"name": "dataflowTRANS_CSV",
+	"properties": {
+		"folder": {
+			"name": "Test_DataGov"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "csv_tst_output",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "prueba_superada",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          TICKET_ID as string,",
+				"          CR_PLAZA as string,",
+				"          CR_TIENDA as string,",
+				"          FECHA as string,",
+				"          HORA as string,",
+				"          CAJA as string,",
+				"          CNS as string,",
+				"          CVE_MOV as string,",
+				"          UNIDADES_VENTA as string,",
+				"          CARD_TYPE as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> source1",
+				"source1 aggregate(groupBy(CARD_TYPE,",
+				"          FECHA),",
+				"     TICKET_ID = count(TICKET_ID)) ~> aggregate1",
+				"aggregate1 derive(Produccion = case(TICKET_ID <= 5 , 'Produccion baja',case(and(TICKET_ID >= 6 , TICKET_ID <= 20), 'Produccion promedio', 'Produccion alta'))) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          CARD_TYPE,",
+				"          FECHA,",
+				"          TICKET_ID,",
+				"          Produccion",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     mapColumn(",
+				"          CARD_TYPE,",
+				"          FECHA,",
+				"          TICKET_ID,",
+				"          Produccion",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

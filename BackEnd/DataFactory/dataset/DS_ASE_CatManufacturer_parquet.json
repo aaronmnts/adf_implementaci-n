@@ -1,0 +1,24 @@
+{
+	"name": "DS_ASE_CatManufacturer_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLSCurso",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "CURSO DF/ASE"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "TransformZone/ASE",
+				"fileSystem": "cursodatafactory"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

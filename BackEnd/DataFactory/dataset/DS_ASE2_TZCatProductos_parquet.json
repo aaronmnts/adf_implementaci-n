@@ -1,0 +1,37 @@
+{
+	"name": "DS_ASE2_TZCatProductos_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLSCurso",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "CURSO DF"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "TransformZone/ASE2",
+				"fileSystem": "cursodatafactory"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "ManufacturerID",
+				"type": "UTF8"
+			},
+			{
+				"name": "ManufacturerIDok",
+				"type": "UTF8"
+			},
+			{
+				"name": "Manufacturer",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

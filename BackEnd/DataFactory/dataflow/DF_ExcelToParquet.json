@@ -1,0 +1,59 @@
+{
+	"name": "DF_ExcelToParquet",
+	"properties": {
+		"description": "Dataflow de prueba ",
+		"folder": {
+			"name": "Test_DataGov"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Dim_Zona_Precio_INPUT",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Parquet_OUTPUT",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "sort1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ZONAPRECIO_KEY as string,",
+				"          ZONAPRECIO_ID as string,",
+				"          ZONAPRECIO_DESCRIPCION as string,",
+				"          GRUPO_ZONA_ID as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source1 sort(asc(ZONAPRECIO_ID, true),",
+				"     asc(GRUPO_ZONA_ID, true)) ~> sort1",
+				"sort1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ZONAPRECIO_KEY as string,",
+				"          ZONAPRECIO_ID as string,",
+				"          ZONAPRECIO_DESCRIPCION as string,",
+				"          GRUPO_ZONA_ID as string",
+				"     ),",
+				"     format: 'parquet',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

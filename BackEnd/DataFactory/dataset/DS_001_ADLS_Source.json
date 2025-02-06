@@ -1,0 +1,63 @@
+{
+	"name": "DS_001_ADLS_Source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_zsbdevdl01",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Carpeta": {
+				"type": "string"
+			},
+			"Zona": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "OXXO/MEXICO/CATALOGOS"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@CONCAT('MEXICO/',dataset().Zona,'/CATALOGO/', dataset().Carpeta)",
+					"type": "Expression"
+				},
+				"fileSystem": "oxxo"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Promoción",
+				"type": "String"
+			},
+			{
+				"name": "Descripción",
+				"type": "String"
+			},
+			{
+				"name": "Texto",
+				"type": "String"
+			},
+			{
+				"name": "Día",
+				"type": "String"
+			},
+			{
+				"name": "Inicio",
+				"type": "String"
+			},
+			{
+				"name": "Fin",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

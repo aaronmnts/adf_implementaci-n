@@ -1,0 +1,89 @@
+{
+	"name": "csv_tst_output",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorageTest",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Container": {
+				"type": "string",
+				"defaultValue": "pruebas"
+			},
+			"File": {
+				"type": "string",
+				"defaultValue": "final.parquet"
+			},
+			"Folder": {
+				"type": "string",
+				"defaultValue": "deposito/"
+			}
+		},
+		"folder": {
+			"name": "Test_DataGov"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().File",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().Folder",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().Container",
+					"type": "Expression"
+				}
+			},
+			"compressionCodec": "none"
+		},
+		"schema": [
+			{
+				"name": "TICKET_ID",
+				"type": "UTF8"
+			},
+			{
+				"name": "CR_PLAZA",
+				"type": "UTF8"
+			},
+			{
+				"name": "CR_TIENDA",
+				"type": "UTF8"
+			},
+			{
+				"name": "FECHA",
+				"type": "UTF8"
+			},
+			{
+				"name": "HORA",
+				"type": "UTF8"
+			},
+			{
+				"name": "CAJA",
+				"type": "UTF8"
+			},
+			{
+				"name": "CNS",
+				"type": "UTF8"
+			},
+			{
+				"name": "CVE_MOV",
+				"type": "UTF8"
+			},
+			{
+				"name": "UNIDADES_VENTA",
+				"type": "UTF8"
+			},
+			{
+				"name": "CARD_TYPE",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

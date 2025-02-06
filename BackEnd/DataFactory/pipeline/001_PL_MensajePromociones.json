@@ -1,0 +1,35 @@
+{
+	"name": "001_PL_MensajePromociones",
+	"properties": {
+		"description": "Crea un archivo con los mensajes que se enviaran a los nuevos usuarios.",
+		"activities": [
+			{
+				"name": "EjecutarPromociones",
+				"description": "Ejecutar notebook de Promociones para generar mensaje para usuarios nuevos.",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Shared/OXXO/MEXICO/ANALITICA/001_Demo/001_NB_PromocionNuevosUsuarios"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_Databricks_zsbdevdbk01",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "OXXO/MEXICO/CATALOGOS/PROMOCIONES"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-02-06T16:29:08Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

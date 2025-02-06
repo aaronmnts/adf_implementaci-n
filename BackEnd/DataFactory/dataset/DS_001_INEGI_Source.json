@@ -1,0 +1,35 @@
+{
+	"name": "DS_001_INEGI_Source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_INEGI",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"InegiToken": {
+				"type": "string",
+				"defaultValue": "add79752-383e-4750-bf12-b607997305e5"
+			},
+			"NumeroTiendas": {
+				"type": "string",
+				"defaultValue": "20000"
+			}
+		},
+		"folder": {
+			"name": "OXXO/MEXICO/CATALOGOS"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@CONCAT('nombre/CADENA COMERCIAL OXXO SA DE CV/00/1/', dataset().NumeroTiendas,'/', dataset().InegiToken)",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

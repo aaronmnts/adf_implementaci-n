@@ -1,0 +1,40 @@
+{
+	"name": "Parquet_OUTPUT",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorageTest",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Test_DataGov"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "prueba"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "ZONAPRECIO_KEY",
+				"type": "UTF8"
+			},
+			{
+				"name": "ZONAPRECIO_ID",
+				"type": "UTF8"
+			},
+			{
+				"name": "ZONAPRECIO_DESCRIPCION",
+				"type": "UTF8"
+			},
+			{
+				"name": "GRUPO_ZONA_ID",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

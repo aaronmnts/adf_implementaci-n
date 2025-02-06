@@ -1,0 +1,12 @@
+{
+	"name": "AzureBlobStorageTest",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Uso DataGobernance",
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"connectionString": ""
+		}
+	}
+}

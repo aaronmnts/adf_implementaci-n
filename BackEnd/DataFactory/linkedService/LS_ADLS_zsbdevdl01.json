@@ -1,0 +1,13 @@
+{
+	"name": "LS_ADLS_zsbdevdl01",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Establecer comunicacion con ADLS zsbdevdl01.",
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://zsbdevdl01.dfs.core.windows.net/",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDczQ0YwMEM5LTI3QjUtNDkwMi05NDg5LUM3NjhFRTkyN0M5Rl8zNjYxMDM5OC0xMzQ2LTRiOTktOGU4YS1iZjZkYjIwYTEzZDYiDQp9"
+		}
+	}
+}
